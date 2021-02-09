@@ -13,20 +13,24 @@ def create_table():
     logger.log_info("Creating database")
     query = """CREATE TABLE IF NOT EXISTS cars (
                     id INTEGER PRIMARY KEY,
-                    brand TEXT NOT NULL,
+                    url TEXT,
+                    brand TEXT,
+                    model TEXT,
                     is_new INTEGER,
                     year INTEGER,
                     miles INTEGER,
-                    price INTEGER,
+                    price INTEGER
                );"""
     cursor.execute(query)
 
 
-def add_car(brand, is_new, year, price, miles=0):
+def add_car(brand, url, model, is_new, year, price, miles=0):
     """
     Adds a new car to the cars table
 
     Args:
+        - url(str):
+        - model(str):
         - brand(str)
         - is_new(int): 1 for True, 0 for False.
         - year(int):
@@ -37,7 +41,7 @@ def add_car(brand, is_new, year, price, miles=0):
         0 for success, 1 for failure.
 
     """
-    logger.log_info("Adding a new car: ({}, {}, {}, {}, {})".format(brand,
+    logger.log_info("Adding a new car: ({}, {}, {}, {}, {})".format(model,
                                                                     is_new,
                                                                     year,
                                                                     miles,
@@ -45,10 +49,10 @@ def add_car(brand, is_new, year, price, miles=0):
     try:
         db = sqlite3.connect("cars.db")
         cursor = db.cursor()
-        query = """INSERT INTO cars (brand, is_new, year, miles, price)
-                   VALUES (?, ?, ?, ?, ?)"""
+        query = """INSERT INTO cars (url, brand, model, is_new, year, miles, price)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)"""
 
-        cursor.execute(query, (brand, is_new, year, miles, price))
+        cursor.execute(query, (url, brand, model, is_new, year, miles, price))
         db.commit()
         return 0
     except Exception as e:
@@ -56,12 +60,12 @@ def add_car(brand, is_new, year, price, miles=0):
         return 1
 
 
-def check_car(brand, is_new, year, price, miles=0):
+def check_car(model, is_new, year, price, miles=0):
     """
     Checks if a car exists.
 
     Args:
-        - brand(str)
+        - model(str)
         - is_new(int): 1 for True, 0 for False.
         - year(int):
         - price(int)
@@ -70,7 +74,7 @@ def check_car(brand, is_new, year, price, miles=0):
     Returns(bool):
 
     """
-    logger.log_info("Checking if car ({}, {}, {}, {}, {}) exists".format(brand,
+    logger.log_info("Checking if car ({}, {}, {}, {}, {}) exists".format(model,
                                                                          is_new,
                                                                          year,
                                                                          price,
@@ -78,12 +82,12 @@ def check_car(brand, is_new, year, price, miles=0):
     db = sqlite3.connect("cars.db")
     cursor = db.cursor()
     query = """SELECT * FROM cars WHERE (
-                   brand={},
+                   model={},
                    is_new={},
                    year={},
                    price={},
                    miles={}
-               );""".format(brand, is_new, year, price, miles)
+               );""".format(model, is_new, year, price, miles)
     cursor.execute(query)
     res = cursor.fetchall()
     logger.log_info("Results are: {}".format(res))
