@@ -163,6 +163,28 @@ class UiHelper:
         logger.log_error("Could not find element. Returning error")
         return -1, None
 
+    def implicit_wait(self, delay):
+        """
+        Implicitly waits.
+
+        Args:
+            - delay(int): wait in seconds.
+
+        """
+        time.sleep(delay)
+
+    def send_focus(self, text):
+        """
+        Send text to the focused element.
+
+        Args:
+            - text(str):
+
+        """
+        active_element = self.driver.switch_to.active_element
+        active_element.send_keys(text)
+        active_element.submit()
+
     def _find_element(self, class_name, xpath, _id, name, link_text,
                       partial_link_text):
         if not class_name and not xpath and not _id and not name and \
@@ -170,7 +192,7 @@ class UiHelper:
             logger.log_error("I cant find the element withouth info")
             return
         elif class_name:
-            element = self.driver.find_element_by
+            element = self.driver.find_element_by_class_name(class_name)
         elif xpath:
             element = self.driver.find_element_by_xpath(xpath)
         elif _id:
