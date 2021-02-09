@@ -158,7 +158,7 @@ class UiHelper:
                 return 0, element
             except Exception as e:
                 logger.log_info("Element is not present."
-                                "waiting 5s: {}".format(e))
+                                "waiting 0.5s: {}".format(e))
                 time.sleep(0.5)
         logger.log_error("Could not find element. Returning error")
         return -1, None
