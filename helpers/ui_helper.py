@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 import time
 
-from utils import logger
+from utils.logger import logger
 
 
 class UiHelper:
@@ -21,7 +21,7 @@ class UiHelper:
             options.add_argument("--headless")
 
         logger.log_info("Init webdriver")
-        self.driver = webdriver.firefox(options=options,
+        self.driver = webdriver.Firefox(options=options,
                                         executable_path=driver_path)
 
     def get_url(self, url):
@@ -159,7 +159,7 @@ class UiHelper:
             except Exception as e:
                 logger.log_info("Element is not present."
                                 "waiting 5s: {}".format(e))
-                time.sleep(5)
+                time.sleep(0.5)
         logger.log_error("Could not find element. Returning error")
         return -1, None
 

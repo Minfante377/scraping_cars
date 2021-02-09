@@ -1,6 +1,6 @@
 import sqlite3
 
-from utils import logger
+from utils.logger import logger
 
 
 def create_table():
