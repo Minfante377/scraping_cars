@@ -38,8 +38,11 @@ def truecar_job(brand, used):
                                       'fieldset/label[2]/div')
     if not used:
         logger.log_info("Select new cars")
-        switch = web_driver.wait_for_element(partial_link_text='New Cars')
-        switch.click()
+        selector = 'fieldset.switch-bar.switch-bar-sm.switch-bar-block'
+        switch_bar = web_driver.driver.find_element_by_css_selector(selector)
+        new_cars = switch_bar.find_elements_by_css_selector('div.switch-control')
+        new_cars = new_cars[1]
+        new_cars.click()
 
     logger.log_info("Enter ZIP code {}".format(TrueCar.ZIP_CODE))
     web_driver.click(xpath='/html/body/div[2]/div[3]/main/div/div/div[3]/div/'
@@ -53,8 +56,12 @@ def truecar_job(brand, used):
     def scrape_page(brand, used):
         web_driver.implicit_wait(10)
         cars = web_driver.driver.find_elements_by_tag_name('a')
-        car_class = 'linkable card card-1 card-shadow card-shadow-hover '\
-                    'vehicle-card _1qd1muk'
+        if used:
+            car_class = 'linkable card card-1 card-shadow card-shadow-hover '\
+                        'vehicle-card _1qd1muk'
+        else:
+            car_class = 'linkable card card-1 card-shadow card-shadow-hover '\
+                        'vehicle-card'
         for car in cars:
             clas = car.get_attribute('class')
             if clas != car_class:
@@ -76,11 +83,16 @@ def truecar_job(brand, used):
                                                           'text-truncate')
                 miles = miles[2].text
                 miles = miles.replace(',', '').replace('miles', '')
+                price = car.find_element_by_css_selector('div.heading-3.margin-y-1.'
+                                                         'font-weight-bold').text
+                price = price.replace(',', '').replace('$', '')
             else:
                 miles = 0
-            price = car.find_element_by_css_selector('div.heading-3.margin-y-1.'
-                                                     'font-weight-bold').text
-            price = price.replace(',', '').replace('$', '')
+                selector = 'div.vehicle-card-location.padding-bottom-1'
+                price = car.find_element_by_css_selector(selector)
+                selector = 'div.d-flex.flex-row.justify-content-between'
+                price = price.find_element_by_css_selector(selector).text
+                price = price.split(":")[1].replace(",", "").replace("$", "")
             is_new = 1 if not used else 0
             if not db_helper.check_car(model, is_new, year, price, miles):
                 db_helper.add_car(brand, url, model, is_new, year, price, miles)
@@ -90,8 +102,8 @@ def truecar_job(brand, used):
             try:
                 scrape_page(brand, used)
             except Exception as e:
-                logger.log_error("Something went wrong with the page: {}\n"
-                                 "Retrying in 5s")
+                logger.log_error("Something went wrong with the page: {}."
+                                 " Retrying in 5s".format(e))
                 web_driver.implicit_wait(5)
 
         try:
