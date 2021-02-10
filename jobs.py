@@ -19,7 +19,7 @@ def truecar_job(brand, used):
     logger.log_info("Get driver for truecar job")
     driver_path = os.path.join(os.getcwd(), 'geckodriver')
     logger.log_info("Driver path is {}".format(driver_path))
-    web_driver = UiHelper(driver_path, headless=False)
+    web_driver = UiHelper(driver_path, headless=True)
 
     logger.log_info("Get {}".format(TrueCar.URL))
     web_driver.get_url(TrueCar.URL)
@@ -48,7 +48,7 @@ def truecar_job(brand, used):
     logger.log_info("Start scraping")
 
     def scrape_page(brand, used):
-        web_driver.implicit_wait(1)
+        web_driver.implicit_wait(10)
         cars = web_driver.driver.find_elements_by_tag_name('a')
         car_class = 'linkable card card-1 card-shadow card-shadow-hover '\
                     'vehicle-card _1qd1muk'
@@ -86,9 +86,9 @@ def truecar_job(brand, used):
         scrape_page(brand, used)
         try:
             logger.log_info("Go to the next page")
-            web_driver.click(xpath='/html/body/div[2]/div[3]/main/div/div[3]/'
-                                   'div/div[2]/div/div[2]/div[2]/nav/ul/'
-                                   'li[14]/a')
+            web_driver.click(xpath='/html/body/div[2]/div[3]/main/div/div/'
+                                   'div[3]/div/div[2]/div/div[2]/div[2]/nav/'
+                                   'ul/li[14]/a')
             web_driver.implicit_wait(1)
         except Exception as e:
             logger.log_info("Out of pages")
