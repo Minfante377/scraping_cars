@@ -4,6 +4,8 @@ from helpers.ui_helper import UiHelper
 from helpers import db_helper
 from consts.consts import TrueCar
 
+RETRY = 3
+
 
 def truecar_job(brand, used):
     """
@@ -19,7 +21,7 @@ def truecar_job(brand, used):
     logger.log_info("Get driver for truecar job")
     driver_path = os.path.join(os.getcwd(), 'geckodriver')
     logger.log_info("Driver path is {}".format(driver_path))
-    web_driver = UiHelper(driver_path, headless=True)
+    web_driver = UiHelper(driver_path, headless=False)
 
     logger.log_info("Get {}".format(TrueCar.URL))
     web_driver.get_url(TrueCar.URL)
@@ -31,12 +33,13 @@ def truecar_job(brand, used):
 
     logger.log_info("Select brand {}".format(brand))
     web_driver.click(partial_link_text=brand)
-    web_driver.wait_for_element(xpath='/html/body/div[2]/div[3]/main/div/'
-                                      'div[4]/div/div/div/div[1]/div/h2/'
-                                      'span[1]')
+    web_driver.wait_for_element(xpath='/html/body/div[2]/div[3]/main/div/div/'
+                                      'div[3]/div/div[1]/div/div/div[1]/div[1]/'
+                                      'fieldset/label[2]/div')
     if not used:
         logger.log_info("Select new cars")
-        web_driver.click(partial_link_text='New Cars')
+        switch = web_driver.wait_for_element(partial_link_text='New Cars')
+        switch.click()
 
     logger.log_info("Enter ZIP code {}".format(TrueCar.ZIP_CODE))
     web_driver.click(xpath='/html/body/div[2]/div[3]/main/div/div/div[3]/div/'
@@ -83,7 +86,14 @@ def truecar_job(brand, used):
                 db_helper.add_car(brand, url, model, is_new, year, price, miles)
 
     while True:
-        scrape_page(brand, used)
+        for i in range(RETRY):
+            try:
+                scrape_page(brand, used)
+            except Exception as e:
+                logger.log_error("Something went wrong with the page: {}\n"
+                                 "Retrying in 5s")
+                web_driver.implicit_wait(5)
+
         try:
             logger.log_info("Go to the next page")
             web_driver.click(xpath='/html/body/div[2]/div[3]/main/div/div/'
