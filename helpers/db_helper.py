@@ -82,14 +82,13 @@ def check_car(model, is_new, year, price, miles=0):
     db = sqlite3.connect("cars.db")
     cursor = db.cursor()
     query = """SELECT * FROM cars WHERE (
-                   model={},
-                   is_new={},
-                   year={},
-                   price={},
-                   miles={}
-               );""".format(model, is_new, year, price, miles)
+                   model="{}" AND
+                   is_new={} AND
+                   year={} AND
+                   price={} AND
+                   miles={});""".format(model, is_new, year, price, miles)
     cursor.execute(query)
-    res = cursor.fetchall()
+    res = cursor.fetchone()
     logger.log_info("Results are: {}".format(res))
     if res:
         return True
