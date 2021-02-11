@@ -1,5 +1,6 @@
 from threading import Thread
 from jobs import truecar_job
+from api import api
 from helpers import db_helper
 from utils.logger import logger
 
@@ -8,6 +9,9 @@ BRANDS = ['Dodge', 'Nissan', 'Lamborghini', 'Ferrari']
 
 logger.log_info("Initialize database")
 db_helper.create_table()
+
+logger.log_info("Start API")
+api.run()
 
 threads = []
 for brand in BRANDS:

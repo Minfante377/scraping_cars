@@ -93,3 +93,80 @@ def check_car(model, is_new, year, price, miles=0):
     if res:
         return True
     return False
+
+
+def filter(brand=None, model=None, year=None, lower_price=None,
+           higher_price=None):
+    """
+    Filter results by the non None parameters
+
+    Args:
+        - brand(str)
+        - model(str):
+        - year(str):
+        - lower_price(int):
+        - higher_price(int):
+
+    Returns(list):
+        list with the results
+
+    """
+    logger.log_info('Args are: {}, {}, {}, {}'.format(model, year, lower_price,
+                                                      higher_price))
+    db = sqlite3.connect("cars.db")
+    cursor = db.cursor()
+    query = """SELECT * FROM cars WHERE ("""
+    if brand:
+        query += 'brand="{}" AND '.format(brand)
+    if model:
+        query += 'model="{} AND " '.format(model)
+    if year:
+        query += 'year={} AND '.format(year)
+    if lower_price:
+        query += 'price > {} AND '.format(lower_price)
+    if higher_price:
+        query += 'price < {}'.format(higher_price)
+    if query[-4:] == 'AND ':
+        query = query[:-5]
+    query += ');'
+
+    logger.log_info("Executing query: {}".format(query))
+    cursor.execute(query)
+    res = cursor.fetchall()
+
+    logger.log_info("Results are: {}".format(res))
+    return res
+
+
+def sort(brand=False, model=False, year=False, price=False):
+    """
+    Sort element by given parameter. Only one non False parameter is allowed.
+    Args:
+        - brand(bool):
+        - model(bool):
+        - year(bool):
+        - price(bool):
+
+    Returns(list):
+        Sorted list.
+    """
+    if brand:
+        sort_parameter = 'brand'
+    elif model:
+        sort_parameter = 'model'
+    elif year:
+        sort_parameter = 'year'
+    elif price:
+        sort_parameter = 'price'
+    else:
+        return None
+
+    logger.log_info("Sorting by {}".format(sort_parameter))
+    db = sqlite3.connect("cars.db")
+    cursor = db.cursor()
+    query = """SELECT * FROM cars ORDER BY {}""".format(sort_parameter)
+    cursor.execute(query)
+    res = cursor.fetchall()
+
+    logger.log_info("Results are: {}".format(res))
+    return res
